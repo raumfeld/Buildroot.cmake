@@ -16,8 +16,11 @@ It might be useful if...
       [Artifactory.cmake], or some other binary artifact caching system that
       integrates with CMake.
 
-For more information, see the inline documentation comments in
-[Buildroot.cmake].
+For more information, see:
+
+* the inline documentation comments in [Buildroot.cmake].
+
+* the [examples](https://github.com/raumfeld/Buildroot.cmake/tree/master/examples/)
 
 [Artifactory.cmake]: https://github.com/raumfeld/Artifactory.cmake
 [Buildroot.cmake]: https://github.com/raumfeld/Buildroot.cmake/blob/master/Buildroot.cmake
