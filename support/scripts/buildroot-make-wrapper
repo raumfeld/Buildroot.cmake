@@ -67,4 +67,4 @@ unset MAKEFLAGS
 #
 export MAKEFLAGS="-j 1"
 
-make O=${build_dir} ${buildroot_target} | tee --append ${log}
+make < /dev/null O=${build_dir} ${buildroot_target} | tee --append ${log}
