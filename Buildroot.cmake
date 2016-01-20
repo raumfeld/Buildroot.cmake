@@ -25,7 +25,7 @@ include("support/cmake/DefaultValue")
 include("support/cmake/EnsureAllArgumentsParsed")
 include("support/cmake/FindArtifactFile")
 
-if(("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}") AND
+if(("${BUILDROOT_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}") AND
     ("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles"))
     message(FATAL_ERROR "Please run CMake with a work directory that is not "
                         "the top of the repo. Otherwise, the generated "
