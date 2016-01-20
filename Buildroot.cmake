@@ -32,7 +32,20 @@ if(("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}") AND
                         "Makefile will overwrite Buildroot's Makefile.")
 endif()
 
-find_program(CONFIG_TOOL config ${CMAKE_CURRENT_SOURCE_DIR}/support/scripts NO_DEFAULT_PATH)
+set(BUILDROOT_SCRIPTS_DIR ${CMAKE_CURRENT_LIST_DIR}/support/scripts)
+
+find_program(
+    BUILDROOT_CHECK_TARGET_CREATED_FILES check-target-created-files
+        ${BUILDROOT_SCRIPTS_DIR} NO_DEFAULT_PATH)
+find_program(
+    BUILDROOT_CLEAN buildroot-clean
+        ${BUILDROOT_SCRIPTS_DIR} NO_DEFAULT_PATH)
+find_program(
+    BUILDROOT_CONFIG_TOOL config
+        ${BUILDROOT_SCRIPTS_DIR} NO_DEFAULT_PATH)
+find_program(
+    BUILDROOT_MAKE_WRAPPER buildroot-make-wrapper
+        ${BUILDROOT_SCRIPTS_DIR} NO_DEFAULT_PATH)
 
 # Buildroot downloads nearly 700MB of source code, it makes sense to share
 # this between each of the builds. We use the BR2_DL_DIR setting to do that.
@@ -408,9 +421,13 @@ endfunction()
 # better way to do this!
 function(buildroot_edit_config_file file)
     # This uses scripts/config from the Linux source tree.
+    if(NOT EXISTS ${BUILDROOT_CONFIG_TOOL})
+        message(FATAL_ERROR "Could not find support/scripts/config.")
+    endif()
+
     set(commands ${ARGN})
     execute_process(
-        COMMAND env CONFIG_=BR2_ ${CONFIG_TOOL} --file ${file} ${commands}
+        COMMAND env CONFIG_=BR2_ ${BUILDROOT_CONFIG_TOOL} --file ${file} ${commands}
     )
 endfunction()
 
@@ -426,7 +443,7 @@ function(buildroot_config_value file option_name)
     set(ENV{CONFIG_} "BR2_")
     execute_process(
         COMMAND
-            ${CMAKE_SOURCE_DIR}/support/scripts/config --file ${file} --keep-case --state ${option_name}
+            ${BUILDROOT_CONFIG_TOOL} --file ${file} --keep-case --state ${option_name}
         OUTPUT_VARIABLE
             out
     )
@@ -490,7 +507,7 @@ function(_buildroot_prepare_config source_dir build_dir input)
     set(commands ${ARGN})
 
     if(NOT IS_ABSOLUTE ${input})
-        set(input ${source_dir}/${input})
+        set(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
     endif()
 
     configure_file(${input} ${build_dir}/.config.stamp)
@@ -511,7 +528,7 @@ function(_buildroot_make buildroot_target cmake_target_name source_dir build_dir
     add_custom_command(
         OUTPUT ${output}
         COMMAND
-            ${CMAKE_SOURCE_DIR}/support/scripts/buildroot-make-wrapper ${build_dir} ${buildroot_target} ${build_log}
+            ${BUILDROOT_MAKE_WRAPPER} ${build_dir} ${buildroot_target} ${build_log}
 
         ${stamp_command}
 
@@ -524,7 +541,7 @@ function(_buildroot_make buildroot_target cmake_target_name source_dir build_dir
         # keep track of every single output file, so it could be that deleting
         # the ${check_files} completely breaks the Buildroot build.
         COMMAND
-            ${CMAKE_SOURCE_DIR}/support/scripts/check-target-created-files ${name} ${output} ${check_files}
+            ${BUILDROOT_CHECK_TARGET_CREATED_FILES} ${name} ${output} ${check_files}
 
         WORKING_DIRECTORY
             ${source_dir}
@@ -565,7 +582,7 @@ function(_buildroot_use_prebuilt_directory name prebuilt_file output_file output
         COMMAND
             tar --extract --directory=${output_dir} --file ${output_file}
         COMMAND
-            ${CMAKE_SOURCE_DIR}/support/scripts/check-target-created-files "${name}" ${output_file} ${check_files}
+            ${BUILDROOT_CHECK_TARGET_CREATED_FILES} "${name}" ${output_file} ${check_files}
         OUTPUT ${output_file} ${check_files}
         DEPENDS "${extra_depends}"
         COMMENT "Using prebuilt version of ${name}"
@@ -612,7 +629,7 @@ function(_buildroot_clean_target name build_dir outputs)
     add_custom_target(
         ${name}-clean
         COMMAND
-            ${CMAKE_SOURCE_DIR}/support/scripts/buildroot-clean ${build_dir} ${outputs}
+            ${BUILDROOT_CLEAN} ${build_dir} ${outputs}
         VERBATIM
     )
 endfunction()
