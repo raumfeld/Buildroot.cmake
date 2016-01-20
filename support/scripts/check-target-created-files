@@ -1,0 +1,23 @@
+#!/bin/sh
+# Copyright 2016 Raumfeld
+#
+# Distributed under the OSI-approved BSD License (the "License");
+# see accompanying file LICENSE for details.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the License for more information.
+
+# For use in CMake scripts to check that a target did actually
+# create the things it said it would. You would think that CMake
+# would handle this already ...
+
+set -eu
+
+target_name=$1
+
+shift
+
+for f in $@; do
+    test -e $f || (echo && echo "** ${target_name} target did not create $f **" && echo && exit 1)
+done

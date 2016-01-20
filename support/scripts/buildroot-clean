@@ -1,0 +1,35 @@
+#!/bin/sh
+# buildroot-clean: Clean a Buildroot build directory created by Buildroot.cmake
+
+# Copyright 2016 Raumfeld
+#
+# Distributed under the OSI-approved BSD License (the "License");
+# see accompanying file LICENSE for details.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the License for more information.
+
+# It's difficult to implement this directly in CMake because it doesn't
+# necessarily do any kind of shell glob expension when you run a command,
+# and tries to escape characters like '*'.
+#
+# And we can't run the 'clean' command at configure time.
+#
+# See: <https://cmake.org/pipermail/cmake/2007-July/015471.html>.
+
+set -eux
+
+build_dir=$1
+
+shift
+outputs=$@
+
+cd $build_dir
+
+rm -f ./artifact-output/* \
+      ./artifact-prebuilt/* \
+      ./staging \
+      $outputs
+
+rm -Rf ./build ./configs ./host ./images/*

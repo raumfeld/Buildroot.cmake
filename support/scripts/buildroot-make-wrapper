@@ -1,0 +1,70 @@
+#!/bin/bash
+# buildroot-make-wrapper: Buildroot 'make' wrapper script.
+
+# Copyright 2016 Raumfeld
+#
+# Distributed under the OSI-approved BSD License (the "License");
+# see accompanying file LICENSE for details.
+#
+# This software is distributed WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the License for more information.
+
+# Used by the Buildroot.cmake commands to call Buildroot's Makefiles. This
+# should be used instead of calling `make` directly.
+
+set -e
+
+echo_usage() {
+    echo "Usage: $0 <build_dir> <buildroot_target> <log_file>"
+    exit 1
+}
+
+build_dir="$1"
+buildroot_target="$2"
+log="$3"
+
+if [ -z "$build_dir" ] || [ -z "$buildroot_target" ] || [ -z "$log" ]; then
+    echo_usage
+fi
+
+# We use `tee` to save the output of `make` into a build log file, using a
+# specific log file for each Buildroot built. This means we need to use the
+# Bash-specific mode '-o pipefail': without it, the shell ignores the exit
+# code of the `make` process and returns us the exit code of `tee` instead,
+# which would cause build failures to be ignored.
+
+set -o pipefail
+
+# The top level GNU Make sets up a 'jobserver', and sets environment
+# variables so that Make subprocesses use that jobserver. GNU Make needs to
+# know when a subprocess is a Make subprocess, so that it passes the file
+# descripters for the jobserver's pipe. In a CMake-generated Makefile, it's
+# not possible to use the 'correct' ways of calling Make.
+#
+# The following warning is printed if you call `make` improperly:
+#
+#    make[3]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+#
+# See the following link for more information:
+#
+#    <https://www.gnu.org/software/make/manual/html_node/Recursion.html>
+#
+# By unsetting these environment variables, we remove any information about the
+# jobserver.
+#
+unset MFLAGS
+unset MAKELEVEL
+unset MAKEFLAGS
+
+# Buildroot's manual says the following about parallel Make:
+#
+#    You should never use make -jN with Buildroot: top-level parallel make is
+#    currently not supported. Instead, use the BR2_JLEVEL option to tell
+#    Buildroot to run the compilation of each individual package with make -jN.
+#
+# So, let's be sure "-j 1" is used for the toplevel Buildroot `make` process.
+#
+export MAKEFLAGS="-j 1"
+
+make O=${build_dir} ${buildroot_target} | tee --append ${log}
