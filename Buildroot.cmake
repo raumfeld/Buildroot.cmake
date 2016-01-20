@@ -88,6 +88,17 @@ file(MAKE_DIRECTORY ${BUILDROOT_DOWNLOAD_DIR})
 #   buildroot_target(foo OUTPUT images/rootfs.tar.gz)
 #   add_custom_target(all-foo ALL DEPENDS foo)
 #
+# Configs
+# -------
+#
+# The config you build must be a complete config, not a defconfig or something
+# that would cause the build to ask questions at build time. If the build hangs
+# indefinitely, check the -log.txt file in the build directory: there is
+# probably a menu or config prompt waiting there.
+#
+# To avoid this problem, you should prepare your config file in a Buildroot
+# source checkout with `make defconfig` and/or `make oldconfig`
+#
 # Options
 # -------
 #
