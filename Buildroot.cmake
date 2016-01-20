@@ -172,6 +172,10 @@ function(buildroot_target name)
 
     default_value(BR_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
+    if(NOT ${BUILDROOT_OUTPUT})
+        message(FATAL_ERROR "buildroot_target(${name}): the OUTPUT paramater is required")
+    endif()
+
     # Sets build_dir, config_commands
     _buildroot_common_setup(${name})
 
