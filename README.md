@@ -1,6 +1,6 @@
 # Buildroot.cmake
 
-This is a CMake module that can be used to drive multiple
+This is a [CMake] module that can be used to drive multiple
 [Buildroot] builds from a CMake-generated build system.
 
 It might be useful if...
@@ -10,7 +10,7 @@ It might be useful if...
       Buildroot source tree.
 
 * ... you want to use the output of one or more Buildroot builds as part
-      of a larger CMake-generated buiid process.
+      of a larger CMake-generated build process.
 
 * ... you want to cache the results of one or more Buildroot builds using
       [Artifactory.cmake], or some other binary artifact caching system that
@@ -22,3 +22,4 @@ For more information, see the inline documentation comments in
 [Artifactory.cmake]: https://github.com/raumfeld/Artifactory.cmake
 [Buildroot.cmake]: https://github.com/raumfeld/Buildroot.cmake/blob/master/Buildroot.cmake
 [Buildroot]: https://github.com/raumfeld/Artifactory.cmake
+[CMake]: https://www.cmake.org/
