@@ -634,6 +634,10 @@ function(_buildroot_clean_target name build_dir outputs)
     )
 endfunction()
 
+# Meta target for fetching all buildroot package sources
+# Is set to depend on all the buildroot-*-source-fetch targets.
+add_custom_target(source-fetch)
+
 function(_buildroot_source_fetch_target name build_dir source_dir)
     add_custom_target(
         ${name}-source-fetch
