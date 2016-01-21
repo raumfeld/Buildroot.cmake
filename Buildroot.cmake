@@ -236,7 +236,9 @@ function(buildroot_target name)
     set(build_log ${CMAKE_CURRENT_BINARY_DIR}/${name}-log.txt)
     set(extra_depends ${BR_CONFIG} ${toolchain_depends})
 
-    if(artifact_prebuilt)
+    if(artifact_prebuilt 
+       AND (device_tree_artifact_prebuilt OR NOT BR_DEVICE_TREE_ARTIFACT_PREBUILT) 
+       AND (host_tools_artifact_prebuilt OR NOT BR_HOST_TOOLS_ARTIFACT_PREBUILT))
         _buildroot_use_prebuilt_file(
             ${name} ${artifact_prebuilt} ${main_output})
 
