@@ -6,7 +6,7 @@ This is a [CMake] module that can be used to drive multiple
 It might be useful if...
 
 * ... you have a build process that involves building multiple
-      components, with different configurations, from the same
+      images, with different configurations, from the same
       Buildroot source tree.
 
 * ... you want to use the output of one or more Buildroot builds as part
