@@ -278,7 +278,7 @@ function(buildroot_target name)
         elseif(BR_HOST_TOOLS_ARTIFACT_PREBUILT)
             message(FATAL_ERROR
                     "Did not find expected host-tools artifact for ${name}. "
-                    "Was looking for ${BR_DEVICE_TREE_ARTIFACT_PREBUILT}")
+                    "Was looking for ${BR_HOST_TOOLS_ARTIFACT_PREBUILT}")
         endif()
     else()
         _buildroot_make(
