@@ -200,8 +200,7 @@ function(buildroot_target name)
     find_artifact_file(device_tree_artifact_prebuilt "${BR_DEVICE_TREE_ARTIFACT_PREBUILT}")
     find_artifact_file(host_tools_artifact_prebuilt "${BR_HOST_TOOLS_ARTIFACT_PREBUILT}")
 
-    if(NOT artifact_prebuilt AND (device_tree_artifact_prebuilt OR
-            host_tools_artifact_prebuilt))
+    if(NOT artifact_prebuilt AND (device_tree_artifact_prebuilt OR host_tools_artifact_prebuilt))
         message(WARNING
                 "Some artifacts for ${name} were found but the main artifact "
                 "is missing, so ${name} will be built from source.")
