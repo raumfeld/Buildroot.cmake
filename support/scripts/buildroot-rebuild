@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Script to prepare rebuild of a Buildroot target
+#
+set -eux
+
+build_dir=$1
+target=$2
+
+shift
+shift
+outputs=$@
+
+pushd $build_dir
+
+rm -f $outputs
+
+popd
+
+make $target

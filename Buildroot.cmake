@@ -329,6 +329,7 @@ function(buildroot_target name)
     )
 
     _buildroot_clean_target(${name} ${build_dir} "${all_outputs}")
+    _buildroot_rebuild_target(${name} ${build_dir} "${all_outputs}")
     _buildroot_source_fetch_target(${name} ${build_dir} ${source_dir})
 endfunction()
 
@@ -401,6 +402,7 @@ function(buildroot_toolchain name)
     )
 
     _buildroot_clean_target(${name} ${build_dir} ${toolchain_output})
+    _buildroot_rebuild_target(${name} ${build_dir} ${toolchain_output})
     _buildroot_source_fetch_target(${name} ${build_dir} ${source_dir})
 endfunction()
 
@@ -646,6 +648,15 @@ function(_buildroot_clean_target name build_dir outputs)
         ${name}-clean
         COMMAND
             ${BUILDROOT_CLEAN} ${build_dir} ${outputs}
+        VERBATIM
+    )
+endfunction()
+
+function(_buildroot_rebuild_target name build_dir outputs)
+    add_custom_target(
+        ${name}-rebuild
+        COMMAND
+            ${CMAKE_SOURCE_DIR}/support/scripts/buildroot-rebuild ${build_dir} ${name} ${outputs}
         VERBATIM
     )
 endfunction()
