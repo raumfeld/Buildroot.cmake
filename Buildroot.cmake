@@ -173,7 +173,7 @@ file(MAKE_DIRECTORY ${BUILDROOT_DOWNLOAD_DIR})
 function(buildroot_target name)
     set(one_value_keywords
             CONFIG OUTPUT SOURCE_DIR TOOLCHAIN
-            ARTIFACT_OUTPUT ARTIFACT_PREBUILT
+            ARTIFACT_OUTPUT ARTIFACT_PREBUILT ARTIFACT_PREBUILT_UNPACK_TO ARTIFACT_PREBUILT_UNPACK_ARGS
             DEVICE_TREE_ARTIFACT_OUTPUT DEVICE_TREE_ARTIFACT_PREBUILT
             HOST_TOOLS_ARTIFACT_OUTPUT HOST_TOOLS_ARTIFACT_PREBUILT
             )
@@ -238,14 +238,22 @@ function(buildroot_target name)
     if(artifact_prebuilt 
        AND (device_tree_artifact_prebuilt OR NOT BR_DEVICE_TREE_ARTIFACT_PREBUILT) 
        AND (host_tools_artifact_prebuilt OR NOT BR_HOST_TOOLS_ARTIFACT_PREBUILT))
-        _buildroot_use_prebuilt_file(
-            ${name} ${artifact_prebuilt} ${main_output})
+        if(BR_ARTIFACT_PREBUILT_UNPACK_TO)
+          _buildroot_use_prebuilt_directory(
+              ${name} ${artifact_prebuilt}
+              ${main_output} "${build_dir}/${BR_ARTIFACT_PREBUILT_UNPACK_TO}" ""
+              "" "${BR_ARTIFACT_PREBUILT_UNPACK_ARGS}")
+          list(APPEND all_outputs ${main_output})
+        else()
+          _buildroot_use_prebuilt_file(
+              ${name} ${artifact_prebuilt} ${main_output})
+        endif()
 
         if(device_tree_artifact_prebuilt)
             _buildroot_use_prebuilt_directory(
                 "${name} device trees" ${device_tree_artifact_prebuilt}
-                ${device_tree_output} ${build_dir} "${device_tree_check_files}"
-                "")
+                ${device_tree_output} "" "${device_tree_check_files}"
+                "" "")
             list(APPEND all_outputs ${device_tree_output})
         elseif(BR_DEVICE_TREE_ARTIFACT_PREBUILT)
             message(FATAL_ERROR
@@ -256,8 +264,8 @@ function(buildroot_target name)
         if(host_tools_artifact_prebuilt)
             _buildroot_use_prebuilt_directory(
                 "${name} host tools" ${host_tools_artifact_prebuilt}
-                ${host_tools_output} ${build_dir} "${host_tools_check_files}"
-                "${toolchain_depends}"
+                ${host_tools_output} "" "${host_tools_check_files}"
+                "${toolchain_depends}" ""
                 )
             list(APPEND all_outputs ${host_tools_output})
 
@@ -370,7 +378,7 @@ function(buildroot_toolchain name)
 
     if(artifact_prebuilt)
         _buildroot_use_prebuilt_directory(
-            ${name} ${artifact_prebuilt} ${toolchain_output} ${build_dir} ${check_files} "")
+            ${name} ${artifact_prebuilt} ${toolchain_output} "" ${check_files} "" "")
     else()
         # Config preparation. This uses scripts/config from the Linux source tree.
         _buildroot_prepare_config(${source_dir} ${build_dir} ${BR_TOOLCHAIN_CONFIG} ${config_commands})
@@ -586,7 +594,7 @@ function(_buildroot_use_prebuilt_file name prebuilt_file output_file)
         )
 endfunction()
 
-function(_buildroot_use_prebuilt_directory name prebuilt_file output_file output_dir check_files extra_depends)
+function(_buildroot_use_prebuilt_directory name prebuilt_file output_file unpack_dir check_files extra_depends unpack_args)
     if(NOT IS_ABSOLUTE ${output_file})
         set(output_file ${CMAKE_CURRENT_BINARY_DIR}/${output_file})
     endif()
@@ -594,11 +602,17 @@ function(_buildroot_use_prebuilt_directory name prebuilt_file output_file output
     get_filename_component(output_dir ${output_file} DIRECTORY)
     file(MAKE_DIRECTORY ${output_dir})
 
+    if(unpack_dir)
+      file(MAKE_DIRECTORY ${unpack_dir})
+    else()
+      set(unpack_dir ${output_dir})
+    endif()
+
     add_custom_command(
         COMMAND
             cmake -E create_symlink ${prebuilt_file} ${output_file}
         COMMAND
-            tar --extract --directory=${output_dir} --file ${output_file}
+            tar --extract --directory=${unpack_dir} --file ${output_file} ${unpack_args}
         COMMAND
             ${BUILDROOT_CHECK_TARGET_CREATED_FILES} "${name}" ${output_file} ${check_files}
         OUTPUT ${output_file} ${check_files}
