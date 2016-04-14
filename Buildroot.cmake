@@ -324,16 +324,18 @@ function(buildroot_target name)
     )
 
     set_target_properties(${name} PROPERTIES
-        BUILDROOT_BUILD_DIR
-            ${build_dir}
         BUILDROOT_OUTPUT
             ${main_output}
-        BUILDROOT_HOST_TOOLS_OUTPUT
-            ${host_tools_output}
-        BUILDROOT_HOST_TOOLS_PREFIX
-            ${build_dir}/host/usr
+        BUILDROOT_BUILD_DIR
+            ${build_dir}
         BUILDROOT_STAGING_DIR
             ${build_dir}/staging
+        BUILDROOT_HOST_DIR
+            ${build_dir}/host
+        BUILDROOT_HOST_TOOLS_PREFIX
+            ${build_dir}/host/usr
+        BUILDROOT_HOST_TOOLS_OUTPUT
+            ${host_tools_output}
     )
 
     _buildroot_clean_target(${name} ${build_dir} "${all_outputs}")
@@ -483,6 +485,11 @@ endfunction(buildroot_config_value)
 
 define_property(TARGET PROPERTY "BUILDROOT_BUILD_DIR"
     BRIEF_DOCS "Path to the directory that contains all Buildroot build output for this build."
+    FULL_DOCS "x"
+    )
+
+define_property(TARGET PROPERTY "BUILDROOT_HOST_DIR"
+    BRIEF_DOCS "Path to the host tools directory within the Buildroot build output"
     FULL_DOCS "x"
     )
 
