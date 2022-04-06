@@ -21,9 +21,9 @@
 # It provides two commands: buildroot_target and buildroot_toolchain. See below
 # for documentation.
 
-include("support/cmake/DefaultValue")
-include("support/cmake/EnsureAllArgumentsParsed")
-include("support/cmake/FindArtifactFile")
+include("${CMAKE_CURRENT_LIST_DIR}/support/DefaultValue.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/support/EnsureAllArgumentsParsed.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/support/FindArtifactFile.cmake")
 
 if(("${BUILDROOT_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}") AND
     ("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles"))
@@ -181,7 +181,7 @@ function(buildroot_target name)
     cmake_parse_arguments(BR "" "${one_value_keywords}" "${multi_value_keywords}" ${ARGN})
     ensure_all_arguments_parsed(buildroot_target "${BR_UNPARSED_ARGUMENTS}")
 
-    default_value(BR_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/config)
+    default_value(BR2_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
     if(NOT ${BUILDROOT_OUTPUT})
         message(FATAL_ERROR "buildroot_target(${name}): the OUTPUT paramater is required")
@@ -234,9 +234,8 @@ function(buildroot_target name)
 
     set(build_log ${CMAKE_CURRENT_BINARY_DIR}/${name}-log.txt)
     set(extra_depends ${BR_CONFIG} ${toolchain_depends})
-
-    if(artifact_prebuilt 
-       AND (device_tree_artifact_prebuilt OR NOT BR_DEVICE_TREE_ARTIFACT_PREBUILT) 
+    if(artifact_prebuilt
+       AND (device_tree_artifact_prebuilt OR NOT BR_DEVICE_TREE_ARTIFACT_PREBUILT)
        AND (host_tools_artifact_prebuilt OR NOT BR_HOST_TOOLS_ARTIFACT_PREBUILT))
         if(BR_ARTIFACT_PREBUILT_UNPACK_TO)
           _buildroot_use_prebuilt_directory(
@@ -543,8 +542,15 @@ function(_buildroot_prepare_config source_dir build_dir input)
         set(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
     endif()
 
+    if(IS_SYMLINK ${input})
+    message(FATAL_ERROR "The configuration file does not appear to be configured. Please the configuration file path")
+endif()
+
+    execute_process(COMMAND cmake -E copy ${input} ${source_dir}/configs/custom_defconfig)
+    execute_process(COMMAND make -C ${source_dir} custom_defconfig)
+
     configure_file(${input} ${build_dir}/.config.stamp)
-    execute_process(COMMAND cmake -E copy ${input} ${build_dir}/.config)
+    execute_process(COMMAND cmake -E copy ${source_dir}/.config ${build_dir}/.config)
     buildroot_edit_config_file(${build_dir}/.config ${commands})
 endfunction()
 
