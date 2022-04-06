@@ -18,27 +18,37 @@
 #   cmake .. -DBUILDROOT_SOURCE_DIR=<path to Buildroot.git>
 #   make
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.14)
 
 # Set up the module path so Buildroot.cmake and Git.cmake are found.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/)
 
-include("Buildroot")
-include("Git")
+include("cmake/Buildroot.cmake")
+include("cmake/Git.cmake")
+include("cmake/GitUtils.cmake")
 
-# Look for the Buildroot source code, by default alongside the checkout of
-# Buildroot.cmake.git, but you can pass -DBUILDROOT_SOURCE_DIR=<path> to
-# specify a location to look in.
-git_add_external_repo(
-    buildroot
-    DESCRIPTION "Buildroot"
-    DEFAULT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../buildroot)
+project(examples)
+
+GitUtils_Define(
+  buildroot
+  "https://git.buildroot.net/buildroot"
+  TAG "2020.11.x"
+  FOLDER "build"
+  DEPTH 1
+  FREEZE SINGLE DEPTHONE
+)
 
 # Compile a Buildroot toolchain
 buildroot_target(
-    raspberrypi2
-    OUTPUT images/rootfs.tar.gz
-    CONFIG raspberrypi2.config
-    )
+  raspberrypi2
+  OUTPUT images/rootfs.tar.gz
+  CONFIG examples/raspberrypi2_defconfig
+)
 
-add_custom_target(all-buildroot ALL DEPENDS raspberrypi2)
+buildroot_target(
+  raspberrypi4
+  OUTPUT images/rootfs.tar.gz
+  CONFIG examples/raspberrypi4_defconfig
+)
+
+add_custom_target(all-buildroot ALL DEPENDS raspberrypi2 raspberrypi4)

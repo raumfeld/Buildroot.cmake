@@ -20,7 +20,15 @@ For more information, see:
 
 * the inline documentation comments in [Buildroot.cmake].
 
-* the [examples](https://github.com/raumfeld/Buildroot.cmake/tree/master/examples/)
+* the [examples](https://github.com/raumfeld/Buildroot.cmake/tree/master/CMakeLists.txt/)
+
+Use
+```
+mkdir -p build
+cd build
+cmake -S ../ -B ./
+make
+```
 
 [Artifactory.cmake]: https://github.com/raumfeld/Artifactory.cmake
 [Buildroot.cmake]: https://github.com/raumfeld/Buildroot.cmake/blob/master/Buildroot.cmake
