@@ -32,7 +32,7 @@ project(examples)
 GitUtils_Define(
   buildroot
   "https://git.buildroot.net/buildroot"
-  TAG "2015.11"
+  TAG "2020.11.x"
   FOLDER "build"
   DEPTH 1
   FREEZE SINGLE DEPTHONE
@@ -45,4 +45,12 @@ buildroot_target(
   CONFIG examples/raspberrypi2_defconfig
 )
 
+buildroot_target(
+  raspberrypi4
+  OUTPUT images/rootfs.tar.gz
+  CONFIG examples/raspberrypi4_defconfig
+)
+
 add_custom_target(all-buildroot ALL DEPENDS raspberrypi2)
+
+add_custom_target(all-buildroot ALL DEPENDS raspberrypi4)
