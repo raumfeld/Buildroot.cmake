@@ -51,6 +51,4 @@ buildroot_target(
   CONFIG examples/raspberrypi4_defconfig
 )
 
-add_custom_target(all-buildroot ALL DEPENDS raspberrypi2)
-
-add_custom_target(all-buildroot ALL DEPENDS raspberrypi4)
+add_custom_target(all-buildroot ALL DEPENDS raspberrypi2 raspberrypi4)
