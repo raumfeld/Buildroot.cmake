@@ -440,7 +440,7 @@ endfunction()
 #
 #   configure_file(configs/qemu_x86_64_defconfig
 #       ${CMAKE_CURRENT_BUILD_DIR}/configs/my-config.stamp)
-#   execute_process(COMMAND cmake -E copy configs/qemu_x86_64_defconfig
+#   execute_process(COMMAND ${CMAKE_COMMAND} -E copy configs/qemu_x86_64_defconfig
 #       ${CMAKE_CURRENT_BUILD_DIR}/configs/my-config)
 #   buildroot_edit_config_file(${CMAKE_CURRENT_BUILD_DIR}/configs/my-config
 #       --set-str BR2_TARGET_GENERIC_ISSUE "Welcome to my Buildroot system.")
@@ -544,7 +544,7 @@ function(_buildroot_prepare_config source_dir build_dir input)
     endif()
 
     configure_file(${input} ${build_dir}/.config.stamp)
-    execute_process(COMMAND cmake -E copy ${input} ${build_dir}/.config)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${input} ${build_dir}/.config)
     buildroot_edit_config_file(${build_dir}/.config ${commands})
 endfunction()
 
@@ -595,7 +595,7 @@ function(_buildroot_use_prebuilt_file name prebuilt_file output_file)
 
     add_custom_command(
         COMMAND
-            cmake -E create_symlink ${prebuilt_file} ${output_file}
+            ${CMAKE_COMMAND} -E create_symlink ${prebuilt_file} ${output_file}
         OUTPUT ${output_file}
         COMMENT "Using prebuilt version of ${name}"
         )
@@ -617,7 +617,7 @@ function(_buildroot_use_prebuilt_directory name prebuilt_file output_file unpack
 
     add_custom_command(
         COMMAND
-            cmake -E create_symlink ${prebuilt_file} ${output_file}
+            ${CMAKE_COMMAND} -E create_symlink ${prebuilt_file} ${output_file}
         COMMAND
             tar --extract --directory=${unpack_dir} --file ${output_file} ${unpack_args}
         COMMAND
@@ -638,7 +638,7 @@ function(_buildroot_create_artifact_from_file filename artifact_filename)
 
     add_custom_command(
         OUTPUT ${artifact_filename}
-        COMMAND cmake -E create_symlink ${filename} ${artifact_filename}
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${filename} ${artifact_filename}
         DEPENDS ${filename}
         )
 endfunction()
@@ -657,7 +657,7 @@ function(_buildroot_create_artifact_from_directory filename artifact_filename di
         COMMAND
             tar --create --gzip --file ${filename} --directory ${dir} ${include_files}
         COMMAND
-            cmake -E create_symlink ${filename} ${artifact_filename}
+            ${CMAKE_COMMAND} -E create_symlink ${filename} ${artifact_filename}
         DEPENDS
             ${depends}
         VERBATIM
